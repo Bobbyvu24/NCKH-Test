@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🚗 Quản lý gửi xe</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f9fa;
+      color: #333;
+    }
+
+    /* Navigation Menu */
+    nav {
+      background: linear-gradient(135deg, #2e7d32, #1b5e20);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+    }
+
+    .nav-brand {
+      font-size: 1.5em;
+      font-weight: 700;
+      color: white;
+      padding: 15px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+      gap: 5px;
+    }
+
+    .nav-menu li a {
+      display: block;
+      padding: 18px 24px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .nav-menu li a:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+    }
+
+    .nav-menu li a.active {
+      background: rgba(255,255,255,0.25);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .nav-menu li a.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 3px;
+      background: white;
+      border-radius: 2px;
+    }
+
+    /* Mobile Menu Toggle */
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.8em;
+      cursor: pointer;
+      padding: 10px;
+    }
+
+    /* Main Content */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #1a1a1a;
+      font-size: 2.2em;
+      margin-bottom: 40px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    /* Filter Form */
+    form {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 40px;
+      border: 1px solid rgba(0,0,0,0.04);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    form input, form select {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #dee2e6;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      background: #fff;
+      min-width: 150px;
+    }
+
+    form input:focus, form select:focus {
+      outline: none;
+      border-color: #2e7d32;
+      box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+    }
+
+    form button {
+      background: linear-gradient(135deg, #2e7d32, #1b5e20);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
+    }
+
+    form button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(46, 125, 50, 0.4);
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    th, td {
+      padding: 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      vertical-align: middle;
+    }
+
+    th {
+      background: linear-gradient(135deg, #2e7d32, #1b5e20);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+    }
+
+    tbody tr {
+      transition: all 0.3s ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(46, 125, 50, 0.05);
+      transform: translateX(2px);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Status badges */
+    .status span {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .status .in {
+      color: #1976d2;
+      background: rgba(25, 118, 210, 0.1);
+    }
+
+    .status .out {
+      color: #f57c00;
+      background: rgba(245, 124, 0, 0.1);
+    }
+
+    .status .paid-cash {
+      color: #2e7d32;
+      background: rgba(46, 125, 50, 0.1);
+    }
+
+    .status .paid-qr {
+      color: #1976d2;
+      background: rgba(25, 118, 210, 0.1);
+    }
+
+    /* Action buttons */
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 13px;
+      margin: 3px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .btn-qr {
+      background: linear-gradient(135deg, #1976d2, #1565c0);
+      color: white;
+    }
+
+    .btn-cash {
+      background: linear-gradient(135deg, #2e7d32, #1b5e20);
+      color: white;
+    }
+
+    /* Popup QR */
+    #qrModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    #qrBox {
+      background: white;
+      padding: 35px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      animation: slideUp 0.3s ease;
+      max-width: 400px;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    #qrBox h3 {
+      color: #2e7d32;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+      font-weight: 700;
+    }
+
+    #qrImage {
+      width: 260px;
+      margin: 15px auto;
+      border-radius: 10px;
+      border: 2px solid #e0e0e0;
+    }
+
+    #qrText {
+      font-weight: 700;
+      font-size: 1.2em;
+      color: #2e7d32;
+      margin: 15px 0;
+    }
+
+    #qrBox button {
+      border: none;
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      margin: 5px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    #qrBox button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    #confirmQRBtn {
+      background: linear-gradient(135deg, #1976d2, #1565c0);
+      color: white;
+    }
+
+    #closeBtn {
+      background: linear-gradient(135deg, #6c757d, #5a6268);
+      color: white;
+    }
+
+    /* Responsive */
+    @media (max-width: 968px) {
+      .nav-toggle {
+        display: block;
+      }
+
+      .nav-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: linear-gradient(135deg, #2e7d32, #1b5e20);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+
+      .nav-menu.active {
+        max-height: 500px;
+      }
+
+      .nav-menu li a {
+        padding: 15px 20px;
+        border-radius: 0;
+      }
+
+      .nav-menu li a.active::after {
+        display: none;
+      }
+
+      .container {
+        padding: 20px 10px;
+      }
+
+      h2 {
+        font-size: 1.6em;
+        margin-bottom: 25px;
+      }
+
+      form {
+        padding: 20px;
+      }
+
+      form input, form select {
+        min-width: 100%;
+      }
+
+      table {
+        font-size: 12px;
+      }
+
+      th, td {
+        padding: 10px 6px;
+      }
+
+      .btn {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      #qrBox {
+        padding: 25px;
+        margin: 0 15px;
+      }
+
+      #qrImage {
+        width: 220px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Menu -->
+  <nav>
+    <div class="nav-container">
+      <div class="nav-brand">
+        🚗 Smart Parking
+      </div>
+      <button class="nav-toggle" onclick="toggleMenu()">☰</button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="/">🏠 Trang chủ</a></li>
+        <li><a href="/dashboard">📊 Dashboard</a></li>
+        <li><a href="/rfid">🔖 Quản lý thẻ</a></li>
+        <li><a href="/sessions" class="active">🚘 Lịch sử gửi xe</a></li>
+        <li><a href="/logout">🚪 Đăng xuất</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h2>🚘 Lịch sử gửi xe</h2>
+
+    <form method="get" action="/sessions">
+      <input type="text" name="uid" placeholder="UID..." value="{{ filters.uid }}">
+      <input type="text" name="plate" placeholder="Biển số..." value="{{ filters.plate }}">
+      <select name="type">
+        <option value="">-- Loại người dùng --</option>
+        <option value="resident" {% if filters.type=='resident' %}selected{% endif %}>Cư dân</option>
+        <option value="guest" {% if filters.type=='guest' %}selected{% endif %}>Khách</option>
+      </select>
+      <input type="date" name="from" value="{{ filters.from }}">
+      <input type="date" name="to" value="{{ filters.to }}">
+      <button type="submit">Tìm kiếm</button>
+    </form>
+
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>UID</th>
+        <th>Tên</th>
+        <th>Biển số</th>
+        <th>Bắt đầu</th>
+        <th>Kết thúc</th>
+        <th>Phút</th>
+        <th>Phí (₫)</th>
+        <th>Trạng thái</th>
+        <th>Thanh toán</th>
+      </tr>
+
+      {% for row in sessions %}
+      <tr>
+        <td>{{ row[0] }}</td>
+        <td>{{ row[1] }}</td>
+        <td>{{ row[2] }}</td>
+        <td>{{ row[3] }}</td>
+        <td>{{ row[4] or '' }}</td>
+        <td>{{ row[5] or '' }}</td>
+        <td>{{ "%.0f"|format(row[6] or 0) }}</td>
+        <td>{{ "%.0f"|format(row[7] or 0) }}</td>
+
+        <td class="status">
+          {% if row[8] == 'IN' %}
+            <span class="in">Đang gửi</span>
+          {% elif row[8] == 'OUT' %}
+            <span class="out">Chưa thanh toán</span>
+          {% elif row[8] == 'PAID_CASH' %}
+            <span class="paid-cash">💵 Đã thanh toán (Tiền mặt)</span>
+          {% elif row[8] == 'PAID_QR' %}
+            <span class="paid-qr">💳 Đã chuyển khoản</span>
+          {% else %}
+            {{ row[8] }}
+          {% endif %}
+        </td>
+
+        <td>
+          {% if row[8] == 'OUT' %}
+            <button class="btn btn-qr" onclick="showQR({{ row[7]|int }}, '{{ row[3] }}')">💳 QR</button>
+            <button class="btn btn-cash" onclick="confirmCash('{{ row[3] }}')">💵 Xác nhận</button>
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <!-- Popup QR -->
+    <div id="qrModal">
+      <div id="qrBox">
+        <h3>🔗 Mã QR Thanh Toán</h3>
+        <img id="qrImage" src="" alt="QR code">
+        <p id="qrText"></p>
+
+        <div style="margin-top: 15px;">
+          <button id="confirmQRBtn" onclick="confirmQRPayment()">✅ Xác nhận đã chuyển khoản</button>
+          <button id="closeBtn" onclick="closeQR()">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Toggle Mobile Menu
+    function toggleMenu() {
+      const menu = document.getElementById('navMenu');
+      menu.classList.toggle('active');
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+      const nav = document.querySelector('nav');
+      const toggle = document.querySelector('.nav-toggle');
+      const menu = document.getElementById('navMenu');
+      
+      if (!nav.contains(event.target) && menu.classList.contains('active')) {
+        menu.classList.remove('active');
+      }
+    });
+
+    let currentPlate = null;
+
+    function showQR(amount, plate) {
+      currentPlate = plate;
+      const bank = "BIDV";
+      const account = "0392109048";
+      const des = `Thanh toan tien gui xe ${plate}`;
+      const url = `https://qr.sepay.vn/img?bank=${bank}&acc=${account}&template=compact&amount=${amount}&des=${encodeURIComponent(des)}`;
+      document.getElementById("qrImage").src = url;
+      document.getElementById("qrText").innerText = `Số tiền: ${amount.toLocaleString('vi-VN')}₫`;
+      document.getElementById("qrModal").style.display = "flex";
+    }
+
+    function closeQR() {
+      document.getElementById("qrModal").style.display = "none";
+    }
+
+    function confirmQRPayment() {
+      if (!currentPlate) return;
+      if (confirm(`Xác nhận đã chuyển khoản cho xe ${currentPlate}?`)) {
+        fetch(`/api/pay/qr/${currentPlate}`, { method: 'POST' })
+          .then(res => res.json())
+          .then(data => {
+            alert(data.message);
+            closeQR();
+            location.reload();
+          })
+          .catch(err => alert("Lỗi: " + err));
+      }
+    }
+
+    function confirmCash(plate) {
+      if (confirm(`Xác nhận đã thu tiền mặt của xe ${plate}?`)) {
+        fetch(`/api/pay/cash/${plate}`, { method: 'POST' })
+          .then(async res => {
+            const text = await res.text();
+            try {
+              const data = JSON.parse(text);
+              alert(data.message);
+              location.reload();
+            } catch (e) {
+              alert("❌ Lỗi máy chủ: " + text);
+            }
+          })
+          .catch(err => alert("⚠️ Không thể kết nối tới server: " + err));
+      }
+    }
+
+    window.onclick = (e) => {
+      if (e.target === document.getElementById("qrModal")) closeQR();
+    };
+  </script>
+</body>
+</html>

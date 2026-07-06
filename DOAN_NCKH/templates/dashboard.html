@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📊 Dashboard Quản Lý Bãi Xe</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f9fa;
+      color: #333;
+    }
+
+    /* Navigation Menu */
+    nav {
+      background: linear-gradient(135deg, #2e7d32, #1b5e20);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+    }
+
+    .nav-brand {
+      font-size: 1.5em;
+      font-weight: 700;
+      color: white;
+      padding: 15px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+      gap: 5px;
+    }
+
+    .nav-menu li a {
+      display: block;
+      padding: 18px 24px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .nav-menu li a:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .nav-menu li a.active {
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .nav-menu li a.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 3px;
+      background: white;
+      border-radius: 2px;
+    }
+
+    /* Mobile Menu Toggle */
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.8em;
+      cursor: pointer;
+      padding: 10px;
+    }
+
+    /* Main Content */
+    .content-wrapper {
+      padding: 40px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #1a1a1a;
+      margin-bottom: 50px;
+      font-size: 2.2em;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    /* Cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+      margin-bottom: 50px;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      padding: 30px;
+      text-align: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .card p {
+      color: #6c757d;
+      margin: 0 0 12px 0;
+      font-size: 15px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card h2 {
+      font-size: 42px;
+      margin: 0;
+      font-weight: 800;
+      color: #212529;
+      letter-spacing: -1px;
+    }
+
+    .card:nth-child(1)::before {
+      background: #007bff;
+    }
+
+    .card:nth-child(2)::before {
+      background: #28a745;
+    }
+
+    .card:nth-child(3)::before {
+      background: #ffc107;
+    }
+
+    .card:nth-child(4)::before {
+      background: #dc3545;
+    }
+
+    .card:nth-child(5)::before {
+      background: #007bff;
+    }
+
+    /* Chart containers */
+    .chart-box {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      border-radius: 24px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      padding: 40px;
+      margin-bottom: 40px;
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .chart-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .chart-box h3 {
+      text-align: center;
+      color: #212529;
+      font-size: 20px;
+      margin-bottom: 30px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    /* CHỈ ÁP CHO BAR/LINE */
+    .chart-box canvas {
+      width: 100% !important;
+    }
+
+    /* Chart bar/line cần cao */
+    #entryChart,
+    #inOutLine,
+    #revenueLine {
+      height: 420px !important;
+    }
+
+    /* Pie cần vuông để tròn */
+    #paymentPie,
+    #statusPie {
+      height: 399px !important;
+      /* hoặc 300 */
+      max-width: 520px;
+      margin: 0 auto;
+      display: block;
+    }
+
+    #paymentPie {
+      max-width: 500px !important;
+      max-height: 500px !important;
+      margin: 0 auto;
+    }
+
+    /* Responsive layout */
+    @media (max-width: 768px) {
+      .nav-toggle {
+        display: block;
+      }
+
+      .nav-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: linear-gradient(135deg, #2e7d32, #1b5e20);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+
+      .nav-menu.active {
+        max-height: 500px;
+      }
+
+      .nav-menu li a {
+        padding: 15px 20px;
+        border-radius: 0;
+      }
+
+      .nav-menu li a.active::after {
+        display: none;
+      }
+
+      .content-wrapper {
+        padding: 20px;
+      }
+
+      .chart-box {
+        padding: 20px;
+      }
+
+      canvas {
+        height: 350px !important;
+      }
+
+      h1 {
+        font-size: 1.6em;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navigation Menu -->
+  <nav>
+    <div class="nav-container">
+      <div class="nav-brand">
+        🚗 Smart Parking
+      </div>
+      <button class="nav-toggle" onclick="toggleMenu()">☰</button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="/">🏠 Trang chủ</a></li>
+        <li><a href="/dashboard" class="active">📊 Dashboard</a></li>
+        <li><a href="/rfid">🔖 Quản lý thẻ</a></li>
+        <li><a href="/sessions">🚘 Lịch sử gửi xe</a></li>
+        <li><a href="/logout">🚪 Đăng xuất</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="content-wrapper">
+    <h1>📈 Dashboard Quản Lý Bãi Xe</h1>
+
+    <!-- Dòng 1 -->
+    <div class="cards">
+      <div class="card">
+        <p>🚗 Xe đang trong bãi</p>
+        <h2 id="inCount">-</h2>
+      </div>
+
+      <div class="card">
+        <p>➕ Xe vào hôm nay</p>
+        <h2 id="inToday">-</h2>
+      </div>
+
+      <div class="card">
+        <p>➖ Xe ra hôm nay</p>
+        <h2 id="outToday">-</h2>
+      </div>
+
+      <div class="card">
+        <p>🅿️ Còn trống</p>
+        <h2 id="available">-</h2>
+      </div>
+
+      <div class="card">
+        <p>💰 Doanh thu hôm nay</p>
+        <h2 id="revenueToday">-</h2>
+      </div>
+    </div>
+
+    <!-- Dòng 2 -->
+    <div class="cards">
+      <div class="card">
+        <p>📊 Tổng xe đã vào</p>
+        <h2 id="inTotal">-</h2>
+      </div>
+
+      <div class="card">
+        <p>📤 Tổng xe đã ra</p>
+        <h2 id="outTotal">-</h2>
+      </div>
+
+      <div class="card">
+        <p>💵 Doanh thu tổng</p>
+        <h2 id="revenueTotal">-</h2>
+      </div>
+    </div>
+
+
+    <!-- Biểu đồ cột -->
+    <div class="chart-box">
+      <h3>📅 Lượt xe vào bãi theo ngày (7 ngày gần nhất)</h3>
+      <canvas id="entryChart"></canvas>
+    </div>
+
+    <!-- Biểu đồ tròn -->
+    <div class="chart-box">
+      <h3>💳 Hình thức thanh toán</h3>
+      <canvas id="paymentPie"></canvas>
+    </div>
+
+    <!-- Line: Vào vs Ra -->
+    <div class="chart-box">
+      <h3>📈 Lượt xe vào với ra (7 ngày gần nhất)</h3>
+      <canvas id="inOutLine"></canvas>
+    </div>
+
+    <!-- Line: Doanh thu -->
+    <div class="chart-box">
+      <h3>💰 Doanh thu theo ngày (7 ngày gần nhất)</h3>
+      <canvas id="revenueLine"></canvas>
+    </div>
+
+    <!-- Doughnut: trạng thái phiên -->
+    <div class="chart-box">
+      <h3>🧾 Tỷ lệ trạng thái phiên gửi xe</h3>
+      <canvas id="statusPie"></canvas>
+    </div>
+  </div>
+
+  <script>
+    // Toggle Mobile Menu
+    function toggleMenu() {
+      const menu = document.getElementById('navMenu');
+      menu.classList.toggle('active');
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function (event) {
+      const nav = document.querySelector('nav');
+      const toggle = document.querySelector('.nav-toggle');
+      const menu = document.getElementById('navMenu');
+
+      if (!nav.contains(event.target) && menu.classList.contains('active')) {
+        menu.classList.remove('active');
+      }
+    });
+
+    async function loadDashboard() {
+      const res = await fetch("/api/dashboard-data");
+      const data = await res.json();
+
+      // Cập nhật thẻ
+      document.getElementById("inCount").innerText = data.in_count;
+      document.getElementById("available").innerText = data.available;
+      document.getElementById("revenueToday").innerText =
+        data.revenue_today.toLocaleString('vi-VN') + " ₫";
+      document.getElementById("inToday").innerText = data.in_today;
+      document.getElementById("outToday").innerText = data.out_today;
+      document.getElementById("inTotal").innerText = data.in_total;
+      document.getElementById("outTotal").innerText = data.out_total;
+      document.getElementById("revenueTotal").innerText =
+        data.revenue_total.toLocaleString('vi-VN') + " ₫";
+
+
+      // --- Biểu đồ cột ---
+      const ctx = document.getElementById('entryChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.chart_labels,
+          datasets: [{
+            label: 'Số lượt vào',
+            data: data.chart_values,
+            backgroundColor: 'rgba(46,125,50,0.85)',
+            borderRadius: 6,
+            hoverBackgroundColor: 'rgba(76,175,80,0.9)',
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#444', font: { size: 14 } }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1, color: '#444', font: { size: 14 } },
+              title: { display: true, text: 'Số lượt xe', color: '#555' }
+            }
+          },
+          animation: {
+            duration: 1500,
+            easing: 'easeOutBounce'
+          }
+        }
+      });
+
+      // --- Biểu đồ tròn (pie chart kiểu quạt) ---
+      const pieCtx = document.getElementById('paymentPie').getContext('2d');
+      new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+          labels: ['💵 Tiền mặt', '🏦 Chuyển khoản', '🕐 Chưa thanh toán'],
+          datasets: [{
+            data: [data.pie_data.cash, data.pie_data.qr, data.pie_data.unpaid],
+            backgroundColor: ['#28a745', '#007bff', '#ffc107'],
+            borderWidth: 2,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 1,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { font: { size: 15 }, color: '#333', padding: 15 }
+            }
+          },
+          animation: {
+            duration: 1300,
+            easing: 'easeOutQuart'
+          }
+        }
+      });
+
+      // --- Line chart: Vào vs Ra ---
+      const inOutCtx = document.getElementById('inOutLine').getContext('2d');
+      new Chart(inOutCtx, {
+        type: 'line',
+        data: {
+          labels: data.chart_labels,
+          datasets: [
+            {
+              label: 'Lượt vào',
+              data: data.chart_values,
+              tension: 0.3
+            },
+            {
+              label: 'Lượt ra',
+              data: data.chart_out_values,
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom' } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+
+      // --- Line chart: Doanh thu ---
+      const revCtx = document.getElementById('revenueLine').getContext('2d');
+      new Chart(revCtx, {
+        type: 'line',
+        data: {
+          labels: data.chart_labels,
+          datasets: [
+            {
+              label: 'Doanh thu (₫)',
+              data: data.chart_revenue_values,
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom' } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+
+      // --- Doughnut: trạng thái phiên ---
+      const statusCtx = document.getElementById('statusPie').getContext('2d');
+      new Chart(statusCtx, {
+        type: 'pie',   // ✅ đổi từ doughnut → pie
+        data: {
+          labels: [
+            '🚗 Đang gửi (IN)',
+            '🕐 OUT chưa trả',
+            '💵 Thanh toán tiền mặt',
+            '🏦 Thanh toán QR'
+          ],
+          datasets: [{
+            data: [
+              data?.status_pie?.in || 0,
+              data?.status_pie?.out_unpaid || 0,
+              data?.status_pie?.cash || 0,
+              data?.status_pie?.qr || 0
+            ],
+            backgroundColor: [
+              '#6c757d', // IN - xám
+              '#ffc107', // OUT chưa trả - vàng
+              '#28a745', // tiền mặt - xanh lá
+              '#007bff'  // QR - xanh dương
+            ],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+
+
+
+    loadDashboard();
+  </script>
+</body>
+
+</html>

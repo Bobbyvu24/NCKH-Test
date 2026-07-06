@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔖 Quản lý thẻ RFID</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f9fa;
+      color: #333;
+    }
+
+    /* Navigation Menu */
+    nav {
+      background: linear-gradient(135deg, #2e7d32, #1b5e20);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+    }
+
+    .nav-brand {
+      font-size: 1.5em;
+      font-weight: 700;
+      color: white;
+      padding: 15px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+      gap: 5px;
+    }
+
+    .nav-menu li a {
+      display: block;
+      padding: 18px 24px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .nav-menu li a:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .nav-menu li a.active {
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .nav-menu li a.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 3px;
+      background: white;
+      border-radius: 2px;
+    }
+
+    /* Mobile Menu Toggle */
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.8em;
+      cursor: pointer;
+      padding: 10px;
+    }
+
+    /* Main Content */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #1a1a1a;
+      font-size: 2.2em;
+      margin-bottom: 40px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    /* Form thêm thẻ */
+    #addForm {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      margin-bottom: 40px;
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+    }
+
+    #addForm:hover {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    label {
+      width: 120px;
+      display: inline-block;
+      font-weight: 600;
+      color: #495057;
+      font-size: 14px;
+    }
+
+    input,
+    select {
+      padding: 10px 14px;
+      margin: 8px 0;
+      border-radius: 10px;
+      border: 1px solid #dee2e6;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      background: #fff;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #2e7d32;
+      box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+    }
+
+    button {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #2e7d32, #1b5e20);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(46, 125, 50, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    th,
+    td {
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      vertical-align: middle;
+    }
+
+    th {
+      background: linear-gradient(135deg, #2e7d32, #1b5e20);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+    }
+
+    tbody tr {
+      transition: all 0.3s ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(46, 125, 50, 0.05);
+      transform: translateX(2px);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status-active,
+    .status-inactive {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .status-active {
+      color: #2e7d32;
+      background: rgba(46, 125, 50, 0.1);
+    }
+
+    .status-inactive {
+      color: #d32f2f;
+      background: rgba(211, 47, 47, 0.1);
+    }
+
+    .action-btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      margin: 3px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .edit-btn {
+      background: linear-gradient(135deg, #0288d1, #0277bd);
+      color: white;
+    }
+
+    .disable-btn {
+      background: linear-gradient(135deg, #ffa000, #ff8f00);
+      color: white;
+    }
+
+    .enable-btn {
+      background: linear-gradient(135deg, #7cb342, #689f38);
+      color: white;
+    }
+
+    .delete-btn {
+      background: linear-gradient(135deg, #d32f2f, #c62828);
+      color: white;
+    }
+
+    /* Popup edit */
+    #editModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    #editBox {
+      background: white;
+      padding: 35px;
+      width: 90%;
+      max-width: 420px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    #editBox h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #2e7d32;
+      font-size: 1.5em;
+      font-weight: 700;
+    }
+
+    #editBox input,
+    #editBox select {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #dee2e6;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    #editBox input:disabled {
+      background: #f1f3f5;
+      color: #868e96;
+    }
+
+    #closeEdit {
+      background: linear-gradient(135deg, #6c757d, #5a6268);
+      color: white;
+      margin-left: 8px;
+    }
+
+    /* Scan RFID Modal */
+    #scanModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(3px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    #scanBox {
+      background: #fff;
+      padding: 25px 30px;
+      border-radius: 10px;
+      min-width: 320px;
+      text-align: center;
+    }
+
+    #scanBox button {
+      margin-top: 15px;
+    }
+
+
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-toggle {
+        display: block;
+      }
+
+      .nav-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: linear-gradient(135deg, #2e7d32, #1b5e20);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+
+      .nav-menu.active {
+        max-height: 500px;
+      }
+
+      .nav-menu li a {
+        padding: 15px 20px;
+        border-radius: 0;
+      }
+
+      .nav-menu li a.active::after {
+        display: none;
+      }
+
+      .container {
+        padding: 20px 15px;
+      }
+
+      h1 {
+        font-size: 1.6em;
+        margin-bottom: 30px;
+      }
+
+      #addForm {
+        padding: 20px;
+      }
+
+      label {
+        width: 100%;
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      input,
+      select {
+        width: 100%;
+      }
+
+      table {
+        font-size: 13px;
+      }
+
+      th,
+      td {
+        padding: 10px 8px;
+      }
+
+      .action-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+        margin: 2px;
+      }
+
+      #editBox {
+        padding: 25px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navigation Menu -->
+  <nav>
+    <div class="nav-container">
+      <div class="nav-brand">
+        🚗 Smart Parking
+      </div>
+      <button class="nav-toggle" onclick="toggleMenu()">☰</button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="/">🏠 Trang chủ</a></li>
+        <li><a href="/dashboard">📊 Dashboard</a></li>
+        <li><a href="/rfid" class="active">🔖 Quản lý thẻ</a></li>
+        <li><a href="/sessions">🚘 Lịch sử gửi xe</a></li>
+        <li><a href="/logout">🚪 Đăng xuất</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>🔖 Quản lý thẻ RFID</h1>
+
+    <!-- FORM THÊM THẺ -->
+    <form id="addForm">
+      <label>UID:</label><input name="uid" required><br>
+      <label>Tên chủ:</label><input name="owner_name"><br>
+      <label>Biển số:</label><input name="plate"><br>
+      <label>Loại:</label>
+      <select name="user_type">
+        <option value="resident">Cư dân</option>
+        <option value="guest">Khách</option>
+      </select><br>
+      <button type="submit">➕ Thêm thẻ</button>
+      <button type="button" id="scanBtn" style="margin-left:8px;">
+        📶 Quét thẻ
+      </button>
+    </form>
+
+    <!-- BẢNG THẺ -->
+    <table>
+      <thead>
+        <tr>
+          <th>UID</th>
+          <th>Tên chủ</th>
+          <th>Biển số</th>
+          <th>Loại</th>
+          <th>Trạng thái</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
+      <tbody id="rfidTable"></tbody>
+    </table>
+
+    <!-- POPUP EDIT THẺ -->
+    <div id="editModal">
+      <div id="editBox">
+        <h2>✏️ Chỉnh sửa thẻ</h2>
+        <input id="edit_uid" disabled>
+        <input id="edit_owner" placeholder="Tên chủ">
+        <input id="edit_plate" placeholder="Biển số">
+        <select id="edit_type">
+          <option value="resident">Cư dân</option>
+          <option value="guest">Khách</option>
+        </select>
+
+        <div style="margin-top: 20px; text-align: right;">
+          <button id="saveEdit">💾 Lưu</button>
+          <button id="closeEdit">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP QUÉT THẺ RFID -->
+  <div id="scanModal">
+    <div id="scanBox">
+      <h3>📶 Quét thẻ RFID</h3>
+      <p>Đưa thẻ lại gần đầu đọc RFID…</p>
+      <p id="scanStatus" style="font-weight:bold;color:#007bff;">
+        Đang chờ quét...
+      </p>
+      <button id="cancelScan">Hủy</button>
+    </div>
+  </div>
+
+  <script>
+    // Toggle Mobile Menu
+    function toggleMenu() {
+      const menu = document.getElementById('navMenu');
+      menu.classList.toggle('active');
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function (event) {
+      const nav = document.querySelector('nav');
+      const toggle = document.querySelector('.nav-toggle');
+      const menu = document.getElementById('navMenu');
+
+      if (!nav.contains(event.target) && menu.classList.contains('active')) {
+        menu.classList.remove('active');
+      }
+    });
+
+    // ================================
+    // 📌 LOAD DANH SÁCH THẺ
+    // ================================
+    async function loadRFID() {
+      const res = await fetch("/api/rfid/list");
+      const data = await res.json();
+
+      const tbody = document.getElementById("rfidTable");
+      tbody.innerHTML = data
+        .map(r => `
+        <tr>
+          <td>${r.uid}</td>
+          <td>${r.owner_name || "-"}</td>
+          <td>${r.plate || "-"}</td>
+          <td>${r.user_type === 'resident' ? 'Cư dân' : 'Khách'}</td>
+          <td>
+            <span class="${r.status === 'active' ? 'status-active' : 'status-inactive'}">
+              ${r.status === 'active' ? 'Hoạt động' : 'Đã khóa'}
+            </span>
+          </td>
+          <td>
+            <button class="action-btn edit-btn" onclick="openEdit('${r.uid}','${r.owner_name}','${r.plate}','${r.user_type}')">✏️ Sửa</button>
+
+            ${r.status === 'active'
+            ? `<button class="action-btn disable-btn" onclick="disableRFID('${r.uid}')">🔒 Khóa</button>`
+            : `<button class="action-btn enable-btn" onclick="enableRFID('${r.uid}')">🔓 Mở</button>`}
+
+            <button class="action-btn delete-btn" onclick="deleteRFID('${r.uid}')">🗑 Xóa</button>
+          </td>
+        </tr>
+      `)
+        .join("");
+    }
+
+    // ================================
+    // 📌 XÓA THẺ
+    // ================================
+    async function deleteRFID(uid) {
+      if (!confirm("Xóa vĩnh viễn thẻ " + uid + " ?")) return;
+      const res = await fetch("/api/rfid/delete/" + uid, { method: "DELETE" });
+      alert((await res.json()).message);
+      loadRFID();
+    }
+
+    // ================================
+    // 📌 KHÓA THẺ
+    // ================================
+    async function disableRFID(uid) {
+      if (!confirm("Khóa thẻ " + uid + " ?")) return;
+      const res = await fetch("/api/rfid/disable/" + uid, { method: "POST" });
+      alert((await res.json()).message);
+      loadRFID();
+    }
+
+    // ================================
+    // 📌 MỞ KHÓA THẺ
+    // ================================
+    async function enableRFID(uid) {
+      if (!confirm("Mở khóa thẻ " + uid + " ?")) return;
+      const res = await fetch("/api/rfid/enable/" + uid, { method: "POST" });
+      alert((await res.json()).message);
+      loadRFID();
+    }
+
+    // ================================
+    // 📌 POPUP SỬA THẺ
+    // ================================
+    function openEdit(uid, name, plate, type) {
+      document.getElementById("edit_uid").value = uid;
+      document.getElementById("edit_owner").value = name !== "null" ? name : "";
+      document.getElementById("edit_plate").value = plate !== "null" ? plate : "";
+      document.getElementById("edit_type").value = type;
+
+      document.getElementById("editModal").style.display = "flex";
+    }
+
+    document.getElementById("closeEdit").onclick = () =>
+      document.getElementById("editModal").style.display = "none";
+
+    document.getElementById("saveEdit").onclick = async () => {
+      const body = new FormData();
+      body.append("owner_name", document.getElementById("edit_owner").value);
+      body.append("plate", document.getElementById("edit_plate").value);
+      body.append("user_type", document.getElementById("edit_type").value);
+
+      const uid = document.getElementById("edit_uid").value;
+      const res = await fetch("/api/rfid/update/" + uid, { method: "POST", body });
+
+      alert((await res.json()).message);
+      document.getElementById("editModal").style.display = "none";
+      loadRFID();
+    };
+
+    // ================================
+    // 📌 THÊM THẺ
+    // ================================
+    document.getElementById("addForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const res = await fetch("/api/rfid/add", { method: "POST", body: formData });
+      alert((await res.json()).message);
+      e.target.reset();
+      loadRFID();
+    };
+
+    // Load bảng khi mở trang
+    loadRFID();
+
+    /* ===============================
+    RFID SCAN LOGIC (SAFE ADD-ON)
+    =============================== */
+
+    let scanTimer = null;
+
+    const scanBtn = document.getElementById("scanBtn");
+    const scanModal = document.getElementById("scanModal");
+    const scanStatus = document.getElementById("scanStatus");
+    const cancelScan = document.getElementById("cancelScan");
+
+    scanBtn.onclick = async () => {
+      scanBtn.disabled = true;
+      scanStatus.innerText = "Đang chờ quét...";
+      scanStatus.style.color = "#007bff";
+      scanModal.style.display = "flex";
+
+      try {
+        const res = await fetch("/api/rfid/scan/start", {
+          method: "POST"
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.message || "Không thể bắt đầu quét");
+      } catch (err) {
+        alert(err.message);
+        closeScan();
+        return;
+      }
+
+      scanTimer = setInterval(pollScanResult, 500);
+    };
+
+    async function pollScanResult() {
+      try {
+        const res = await fetch("/api/rfid/scan/poll");
+        const data = await res.json();
+
+        if (data.status === "waiting" || data.status === "idle") return;
+
+        clearInterval(scanTimer);
+
+        if (data.status === "success") {
+          scanStatus.innerText = "✔ Thêm thẻ thành công";
+          scanStatus.style.color = "green";
+          setTimeout(() => {
+            alert(data.message || "Thêm thẻ thành công");
+            closeScan();
+            loadRFID();   // HÀM CŨ – KHÔNG SỬA
+          }, 500);
+        }
+
+        else if (data.status === "duplicate") {
+          scanStatus.innerText = "⚠ Thẻ đã tồn tại";
+          scanStatus.style.color = "orange";
+          setTimeout(() => {
+            alert("Thẻ đã có trong danh sách");
+            closeScan();
+          }, 500);
+        }
+
+        else if (data.status === "timeout") {
+          scanStatus.innerText = "⏱ Hết thời gian quét";
+          scanStatus.style.color = "red";
+          setTimeout(() => {
+            alert("Hết thời gian quét thẻ");
+            closeScan();
+          }, 500);
+        }
+
+        else if (data.status === "error") {
+          throw new Error(data.message || "Lỗi khi quét thẻ");
+        }
+
+      } catch (err) {
+        clearInterval(scanTimer);
+        alert(err.message);
+        closeScan();
+      }
+    }
+
+    cancelScan.onclick = async () => {
+      try {
+        await fetch("/api/rfid/scan/cancel", { method: "POST" });
+      } catch (e) {
+        // không cần alert, tránh phiền
+      }
+      clearInterval(scanTimer);
+      scanTimer = null;
+      closeScan();
+    };
+
+
+    function closeScan() {
+      if (scanTimer) {
+        clearInterval(scanTimer);
+        scanTimer = null;
+      }
+      scanModal.style.display = "none";
+      scanBtn.disabled = false;
+    }
+
+  </script>
+
+</body>
+
+</html>
